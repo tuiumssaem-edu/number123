@@ -559,12 +559,41 @@ function makeChoices(box,list,answer,onRight){
   });
 }
 /* 정답 + 헷갈리기 쉬운 수 2개 (보여 준 수를 먼저 넣어요) */
+
+/* 정답 자리: 무작위로, 같은 자리가 세 번 연속 나오지 않게 */
+let __lastPos=[];
+function placeAnswer(picked,ans){
+  const k=picked.length+1;let pos;
+  do{pos=Math.floor(Math.random()*k);}
+  while(__lastPos.length&gt;=2&amp;&amp;__lastPos[__lastPos.length-1]===pos&amp;&amp;__lastPos[__lastPos.length-2]===pos);
+  __lastPos.push(pos);if(__lastPos.length&gt;5)__lastPos.shift();
+  const list=shuffle(picked.slice());list.splice(pos,0,ans);return list;
+}
+/* 여러 종류의 헷갈리는 수에서 종류마다 하나씩 골라요 */
+function pickConfusers(ans,kinds,need,ok){
+  const picked=[];
+  for(const kind of shuffle(kinds)){
+    if(picked.length&gt;=need)break;
+    const x=shuffle(kind.slice()).find(v=&gt;ok(v)&amp;&amp;!picked.includes(v));
+    if(x!==undefined)picked.push(x);
+  }
+  return picked;
+}
 function opts(ans,first){
-  const s=new Set([ans]);
-  const cands=[first,...shuffle([ans-1,ans+1,ans+2,ans-2])];
-  for(const x of cands){if(s.size&gt;=3)break;if(x&gt;=1&amp;&amp;x&lt;=S.range&amp;&amp;!s.has(x))s.add(x);}
-  for(const x of [ans+1,ans+2,ans+3,ans-1]){if(s.size&gt;=3)break;if(x&gt;=1&amp;&amp;!s.has(x))s.add(x);}
-  return [...s].sort((a,b)=&gt;a-b);
+  const ok=x=&gt;Number.isInteger(x)&amp;&amp;x&gt;=1&amp;&amp;x&lt;=S.range&amp;&amp;x!==ans;
+  const t=Math.floor(ans/10),o=ans%10;
+  const kinds=[
+    [first],                                  /* 문제에 나온 수 그대로 */
+    [first-1,first+1].filter(x=&gt;x!==ans),     /* 반대 방향(1 작은 수 ↔ 1 큰 수) */
+    [ans-2,ans+2],                            /* 두 칸 떨어진 수 */
+    [ans-10,ans+10],                          /* 10 차이 나는 수 */
+    [o*10+t],                                 /* 자리를 바꾼 수 (12 → 21) */
+    [ans-3,ans+3]
+  ];
+  let picked=pickConfusers(ans,kinds,2,ok);
+  for(let x=1;picked.length&lt;2&amp;&amp;x&lt;=Math.max(S.range,ans+3);x++){const c=ans+(x%2?x:-x)/1;if(ok(c)&amp;&amp;!picked.includes(c))picked.push(c);}
+  while(picked.length&lt;2){const c=ans+picked.length+3;if(!picked.includes(c))picked.push(c);}
+  return placeAnswer(picked,ans);
 }
 
 /* 징검다리 그리기 */
@@ -1286,13 +1315,46 @@ function makeChoices(box,list,answer,onRight,fmt){
     box.appendChild(b);
   });
 }
+
+/* 정답 자리: 무작위로, 같은 자리가 세 번 연속 나오지 않게 */
+let __lastPos=[];
+function placeAnswer(picked,ans){
+  const k=picked.length+1;let pos;
+  do{pos=Math.floor(Math.random()*k);}
+  while(__lastPos.length&gt;=2&amp;&amp;__lastPos[__lastPos.length-1]===pos&amp;&amp;__lastPos[__lastPos.length-2]===pos);
+  __lastPos.push(pos);if(__lastPos.length&gt;5)__lastPos.shift();
+  const list=shuffle(picked.slice());list.splice(pos,0,ans);return list;
+}
+/* 여러 종류의 헷갈리는 수에서 종류마다 하나씩 골라요 */
+function pickConfusers(ans,kinds,need,ok){
+  const picked=[];
+  for(const kind of shuffle(kinds)){
+    if(picked.length&gt;=need)break;
+    const x=shuffle(kind.slice()).find(v=&gt;ok(v)&amp;&amp;!picked.includes(v));
+    if(x!==undefined)picked.push(x);
+  }
+  return picked;
+}
 function threeOpts(n,max,step){
-  const s=new Set([n]);const a=Math.floor(n/10),b=n%10;
-  const c=step===10?[n+10,n-10,n+20,n-20]:[n+10,n-10,b*10+a,n+1,n-1];
   const cap=Math.min(90,Math.max(max,30));
-  for(const x of shuffle(c)){if(s.size&gt;=3)break;if(x&gt;=1&amp;&amp;x&lt;=cap&amp;&amp;x!==n)s.add(x);}
-  while(s.size&lt;3)s.add(step===10?rand(1,cap/10)*10:rand(10,cap));
-  return [...s].sort((x,y)=&gt;x-y);
+  const ok=x=&gt;Number.isInteger(x)&amp;&amp;x&gt;=1&amp;&amp;x&lt;=cap&amp;&amp;x!==n;
+  const a=Math.floor(n/10),b=n%10;
+  let kinds;
+  if(step===10){ /* 몇십 문제: 보기도 모두 몇십 */
+    kinds=[[n-10,n+10],[n-20,n+20],[n-30,n+30],[a]];   /* [a]: 묶음 수만 쓴 수 (30 → 3) */
+  }else{
+    kinds=[
+      [b*10+a],              /* 자리를 바꾼 수 (23 → 32) */
+      [n-10,n+10],           /* 10 차이 (묶음 하나 더/덜) */
+      [n-1,n+1],             /* 낱개 하나 더/덜 */
+      [a+b],                 /* 묶음 수와 낱개 수를 더한 수 (23 → 5) */
+      [a*10],                /* 낱개를 빠뜨린 수 (23 → 20) */
+      [n-2,n+2]
+    ];
+  }
+  let picked=pickConfusers(n,kinds,2,ok);
+  while(picked.length&lt;2){const c=step===10?rand(1,cap/10)*10:rand(10,cap);if(ok(c)&amp;&amp;!picked.includes(c))picked.push(c);}
+  return placeAnswer(picked,n);
 }
 
 /* ---------- 화면 이동 ---------- */
@@ -2047,11 +2109,35 @@ function renderBoard(popN,hop){
   const total=st.blanks.length,done=st.filled.size,pct=total?done/total*100:0;
   $(&#x27;prog-fill&#x27;).style.width=pct+&#x27;%&#x27;;$(&#x27;prog-walker&#x27;).style.left=pct+&#x27;%&#x27;;
 }
+
+/* 정답 자리: 무작위로, 같은 자리가 세 번 연속 나오지 않게 */
+let __lastPos=[];
+function placeAnswer(picked,ans){
+  const k=picked.length+1;let pos;
+  do{pos=Math.floor(Math.random()*k);}
+  while(__lastPos.length&gt;=2&amp;&amp;__lastPos[__lastPos.length-1]===pos&amp;&amp;__lastPos[__lastPos.length-2]===pos);
+  __lastPos.push(pos);if(__lastPos.length&gt;5)__lastPos.shift();
+  const list=shuffle(picked.slice());list.splice(pos,0,ans);return list;
+}
+/* 여러 종류의 헷갈리는 수에서 종류마다 하나씩 골라요 */
+function pickConfusers(ans,kinds,need,ok){
+  const picked=[];
+  for(const kind of shuffle(kinds)){
+    if(picked.length&gt;=need)break;
+    const x=shuffle(kind.slice()).find(v=&gt;ok(v)&amp;&amp;!picked.includes(v));
+    if(x!==undefined)picked.push(x);
+  }
+  return picked;
+}
+/* 보기 만들기: 바로 앞/뒤 수, 윗줄/아랫줄 수, 자리를 바꾼 수, 두 칸 떨어진 수,
+   일의 자리만 같은 수 중에서 종류마다 하나씩 골라요 */
 function makeOpts(n){
-  const s=new Set([n]);
-  const near=shuffle([n-1,n+1]),far=shuffle([n+10,n-10]);
-  for(const x of [...near,...far,n+2,n-2]){if(s.size&gt;=S.opts)break;if(x&gt;=1&amp;&amp;x&lt;=50)s.add(x);}
-  return [...s].sort((a,b)=&gt;a-b);
+  const ok=x=&gt;Number.isInteger(x)&amp;&amp;x&gt;=1&amp;&amp;x&lt;=50&amp;&amp;x!==n;
+  const t=Math.floor(n/10),o=n%10;
+  const kinds=[[n-1,n+1],[n-10,n+10],[o*10+t],[n-2,n+2],[1,2,3,4].map(k=&gt;k*10+o).concat(o?[o]:[])];
+  let picked=pickConfusers(n,kinds,S.opts-1,ok);
+  while(picked.length&lt;S.opts-1){const x=1+Math.floor(Math.random()*50);if(ok(x)&amp;&amp;!picked.includes(x))picked.push(x);}
+  return placeAnswer(picked,n);
 }
 function ask(){
   const n=st.blanks[st.idx];
