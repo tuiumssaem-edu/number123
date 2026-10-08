@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>수의 순서 놀이</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF6F1; --dot:#CBE2D6; --card:#FFFFFF; --ink:#1E3A33; --muted:#557067;
+  --base:#178F80; --less:#7A5AF8; --more:#EF5B7B; --good:#1E9E6A; --line:#C9DDD3; --sun:#FFC83D; --soft:#E3F3EC;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#132420; --dot:#1F3832; --card:#1B2F2A; --ink:#E9F5F0; --muted:#9DB8AF;
+    --base:#3CC1AF; --less:#A08BFF; --more:#FF7E99; --good:#45CF92; --line:#2C4740; --sun:#FFD15C; --soft:#21403A;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#132420; --dot:#1F3832; --card:#1B2F2A; --ink:#E9F5F0; --muted:#9DB8AF;
+  --base:#3CC1AF; --less:#A08BFF; --more:#FF7E99; --good:#45CF92; --line:#2C4740; --sun:#FFD15C; --soft:#21403A;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0;color:var(--ink);background-color:var(--bg);
+  background-image:radial-gradient(var(--dot) 2px,transparent 2.5px);
+  background-size:26px 26px;
+  font-family:'Do Hyeon','Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;
+  font-size:23px;line-height:1.45;
+}
+button{font-family:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:4px solid var(--sun);outline-offset:3px}
+.wrap{max-width:860px;margin:0 auto;padding:14px}
+.screen{display:none}
+.screen.on{display:block}
+.push{box-shadow:0 6px 0 var(--line);transition:transform .08s,box-shadow .08s}
+.push:active{transform:translateY(5px);box-shadow:0 1px 0 var(--line)}
+
+/* 처음 화면 */
+.home-top{display:flex;justify-content:flex-end}
+.gear{width:48px;height:48px;border-radius:14px;border:2px solid var(--line);background:var(--card);font-size:24px;display:flex;align-items:center;justify-content:center;opacity:.5}
+.gear:hover,.gear:focus-visible{opacity:1}
+.home-title{text-align:center;margin:6px 0 22px}
+.home-title h1{font-size:clamp(38px,9vw,58px);margin:0;font-weight:400;letter-spacing:1px}
+.home-title .strip{display:flex;justify-content:center;gap:8px;margin-top:8px}
+.home-title .strip span{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.menu button{background:var(--card);border:3px solid var(--line);border-radius:22px;padding:18px 10px 20px;font-size:28px;display:flex;flex-direction:column;align-items:center;gap:8px;min-height:180px;justify-content:center}
+.menu .ic{width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:52px}
+
+/* 위쪽 막대 */
+.top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.top h2{flex:1;margin:0;font-size:30px;font-weight:400;text-align:center}
+.sq{width:62px;height:62px;border-radius:18px;border:3px solid var(--line);background:var(--card);font-size:28px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.panel{background:var(--card);border:3px solid var(--line);border-radius:26px;padding:18px 14px}
+.say{font-size:30px;text-align:center;margin:0 0 16px;min-height:1.4em}
+.say .n{font-size:44px;color:var(--base)}
+.say .lt{color:var(--less)} .say .gt{color:var(--more)}
+
+/* 수직선 징검다리 */
+.line{display:flex;justify-content:center;align-items:flex-end;gap:10px;flex-wrap:wrap;padding:58px 0 8px;position:relative}
+.stone{position:relative;min-width:88px;height:88px;border-radius:50%/42%;background:var(--soft);border:4px solid var(--line);font-size:40px;display:flex;align-items:center;justify-content:center;padding:0 8px}
+.stone.base{border-color:var(--base);background:var(--base);color:#fff}
+.stone.q{border-style:dashed;background:var(--card);color:var(--muted)}
+.stone.q.lt{border-color:var(--less)} .stone.q.gt{border-color:var(--more)}
+.stone.got.lt{background:var(--less);border-color:var(--less);color:#fff;border-style:solid}
+.stone.got.gt{background:var(--more);border-color:var(--more);color:#fff;border-style:solid}
+.stone.got.nx{background:var(--sun);border-color:var(--sun);color:#3A2A00;border-style:solid}
+.stone.q.nx{border-color:var(--sun)}
+.char{position:absolute;top:-56px;left:50%;transform:translateX(-50%);font-size:46px;line-height:1}
+.char.hop{animation:hop .5s ease}
+@keyframes hop{0%{transform:translate(-50%,0)}40%{transform:translate(-50%,-30px)}100%{transform:translate(-50%,0)}}
+.tag{position:absolute;bottom:-34px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:20px}
+.tag.lt{color:var(--less)} .tag.gt{color:var(--more)}
+.line.tagged{padding-bottom:40px}
+
+/* 고르기 */
+.choices{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.choice{min-width:118px;font-size:46px;padding:12px 22px;border-radius:20px;border:3px solid var(--line);background:var(--bg)}
+.choice.right{background:var(--good);border-color:var(--good);color:#fff}
+.choice.nope{opacity:.3;animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.next{display:block;margin:20px auto 0;font-size:32px;padding:12px 44px;border-radius:18px;border:none;background:var(--good);color:#fff;box-shadow:0 6px 0 rgba(0,0,0,.18)}
+
+/* 기차 */
+.track{overflow-x:auto;padding:6px 0 4px}
+.train{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;align-items:flex-end}
+.car{position:relative;min-width:76px;height:76px;border-radius:14px;background:var(--soft);border:4px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:16px}
+.car::before,.car::after{content:"";position:absolute;bottom:-17px;width:18px;height:18px;border-radius:50%;background:var(--ink)}
+.car::before{left:10px} .car::after{right:10px}
+.car.engine{background:var(--base);border-color:var(--base);color:#fff;min-width:96px}
+.car.engine .smoke{position:absolute;top:-40px;left:8px;font-size:30px}
+.car.filled{background:var(--sun);border-color:var(--sun);color:#3A2A00}
+.car.cur{border-style:dashed;border-color:var(--sun);background:var(--card);animation:glow 1.2s infinite}
+@keyframes glow{50%{box-shadow:0 0 0 6px rgba(255,200,61,.35)}}
+.train.go{animation:chug 1.4s ease}
+@keyframes chug{0%{transform:translateX(0)}40%{transform:translateX(60px)}55%{transform:translateX(50px)}100%{transform:translateX(0)}}
+
+/* 맞혀 보기 */
+.stars{text-align:center;font-size:36px;letter-spacing:4px;margin-bottom:4px}
+.endbox{text-align:center;padding:20px 0}
+.endbox .big{font-size:80px}
+
+/* 설정 */
+.set-list{display:flex;flex-direction:column;gap:14px}
+.set-item{background:var(--card);border:3px solid var(--line);border-radius:20px;padding:14px 16px}
+.set-item h3{margin:0 0 4px;font-size:24px;font-weight:400}
+.set-item p{margin:0 0 10px;font-size:16px;color:var(--muted);font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif}
+.set-item .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:8px 18px;font-size:21px}
+.pill.on{background:var(--base);color:#fff;border-color:var(--base)}
+.pill.on::before{content:"✔ "}
+.set-item select{font-family:inherit;font-size:19px;padding:8px 12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink);max-width:100%;flex:1 1 220px}
+.vnote{font-size:15px;margin-top:8px;color:var(--muted);font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif}
+
+/* 칭찬 */
+#party{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .2s}
+#party.show{opacity:1}
+#party div{background:var(--card);border:5px solid var(--sun);border-radius:26px;padding:20px 40px;font-size:46px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+/* 별·스티커 강화 */
+.home-top{justify-content:space-between;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:3px solid var(--sun);border-radius:999px;padding:4px 16px 4px 10px;font-size:26px}
+.badge b{font-weight:400}
+.bump{animation:bump .5s ease}
+@keyframes bump{40%{transform:scale(1.35)}100%{transform:scale(1)}}
+.rbar{width:max-content;margin-left:auto;display:flex;align-items:center;justify-content:flex-end;gap:10px;background:var(--card);border:3px solid var(--line);border-radius:18px;padding:6px 14px;margin-bottom:12px}
+.rstar{font-size:24px;white-space:nowrap;display:inline-block}
+.path{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:4px 0 14px}
+.pstone{position:relative;width:52px;height:52px;border-radius:50%;background:var(--soft);border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--muted)}
+.pstone.done{background:var(--sun);border-color:var(--sun);color:#3A2A00}
+.pstone .char{top:-44px;font-size:36px}
+.chest{font-size:52px;line-height:1;margin-left:4px}
+.chest.open{animation:bump .6s ease 2}
+.danger{border-color:#E26B6B!important}
+@media (max-width:520px){
+  body{font-size:21px}
+  .menu button{min-height:150px;font-size:24px}
+  .menu .ic{width:72px;height:72px;font-size:42px}
+  .stone{min-width:70px;height:70px;font-size:32px}
+  .car{min-width:62px;height:64px;font-size:30px}
+  .car.engine{min-width:78px}
+  .choice{min-width:92px;font-size:38px}
+  .say{font-size:26px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== 숫자 놀이 모음 공통 디자인 ===== */
+:root{--t-bg:#FFFAF3;--t-dot:#F1E5D6;--t-card:#FFFFFF;--t-ink:#3A3346;--t-muted:#857A90;--t-line:#EEE2D3;--t-good:#2FA463;--acc:#178F80;--acc-soft:#DDF1EC}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--t-bg:#1F1C24;--t-dot:#2C2833;--t-card:#2A2631;--t-ink:#F3EEF6;--t-muted:#B0A6BA;--t-line:#3D3746;--t-good:#43C17E;--acc-soft:#1F3B36}}
+:root[data-theme="dark"]{--t-bg:#1F1C24;--t-dot:#2C2833;--t-card:#2A2631;--t-ink:#F3EEF6;--t-muted:#B0A6BA;--t-line:#3D3746;--t-good:#43C17E;--acc-soft:#1F3B36}
+body{background-color:var(--t-bg)!important;background-image:radial-gradient(var(--t-dot) 2px,transparent 2.6px)!important;background-size:26px 26px!important;color:var(--t-ink)!important;font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif!important;font-weight:400!important;font-size:22px!important;line-height:1.45!important}
+button,select{font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif!important;font-weight:400!important}
+.set-item p,.vnote,#voice-sel{font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif!important}
+/* 위쪽 막대 */
+.top h2{font-size:28px!important;font-weight:400!important;color:var(--t-ink)}
+.round,.sq{width:56px!important;height:56px!important;border-radius:50%!important;border:3px solid var(--t-line)!important;background:var(--t-card)!important;box-shadow:0 4px 0 var(--t-line)!important;font-size:25px!important}
+.gear{width:48px!important;height:48px!important;border-radius:50%!important;border:2px solid var(--t-line)!important;background:var(--t-card)!important;opacity:.55}
+/* 카드 */
+.panel{background:var(--t-card)!important;border:3px solid var(--t-line)!important;border-radius:26px!important;box-shadow:0 6px 0 var(--t-line)!important}
+.say{font-size:28px!important;line-height:1.3!important;color:var(--t-ink)}
+/* 처음 화면 */
+.home-title h1,.title h1{font-size:clamp(38px,8vw,56px)!important;font-weight:400!important;color:var(--t-ink)!important;text-shadow:none!important;letter-spacing:0!important;line-height:1.1!important}
+.menu{gap:16px!important}
+.menu button{background:var(--t-card)!important;border:3px solid var(--t-line)!important;border-radius:24px!important;box-shadow:0 6px 0 var(--t-line)!important;font-size:26px!important;color:var(--t-ink)!important}
+.menu button:active{transform:translateY(5px);box-shadow:0 1px 0 var(--t-line)!important}
+.menu button .ic{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:48px!important;background:var(--acc-soft)}
+/* 보기 버튼 (모든 놀이 같은 모양) */
+.choice{background:var(--t-card)!important;color:var(--t-ink)!important;border:3px solid var(--t-line)!important;border-radius:22px!important;box-shadow:0 6px 0 var(--t-line)!important;font-size:46px!important;line-height:1.1!important;min-width:112px!important;padding:12px 22px!important;transform:none}
+.choice:active{transform:translateY(4px)!important;box-shadow:0 2px 0 var(--t-line)!important}
+.choice.right{background:var(--t-good)!important;border-color:var(--t-good)!important;color:#fff!important;box-shadow:0 6px 0 rgba(0,0,0,.15)!important}
+/* 다음 버튼 */
+.next,.big-btn{background:var(--t-good)!important;color:#fff!important;border:none!important;border-radius:999px!important;font-size:28px!important;padding:12px 38px!important;box-shadow:0 6px 0 rgba(0,0,0,.15)!important}
+.big-btn.sub{background:var(--t-card)!important;color:var(--t-ink)!important;border:3px solid var(--t-line)!important;box-shadow:0 6px 0 var(--t-line)!important}
+/* 칭찬 */
+#party div{background:var(--t-card)!important;border:5px solid var(--acc)!important;border-radius:28px!important;font-size:40px!important;padding:18px 36px!important;color:var(--t-ink)!important}
+/* 선생님 설정 */
+.set-item{background:var(--t-card)!important;border:3px solid var(--t-line)!important;border-radius:22px!important}
+.set-item h3{font-size:22px!important;font-weight:400!important;margin-bottom:2px!important}
+.pill{border:2px solid var(--t-line)!important;background:var(--t-bg)!important;color:var(--t-ink)!important;border-radius:999px!important;padding:7px 16px!important;font-size:19px!important;line-height:1.3!important}
+.pill.on{background:var(--acc)!important;border-color:var(--acc)!important;color:#fff!important}
+@media (max-width:520px){body{font-size:20px!important}.say{font-size:24px!important}.choice{font-size:40px!important;min-width:90px!important}.menu button{font-size:22px!important}.menu button .ic{width:68px;height:68px;font-size:38px!important}}
+
+.badge,.rbar{border-color:var(--acc)!important;background:var(--t-card)!important}
+.home-title .strip span{border-radius:12px}
+/* ===== 끝 ===== */
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 처음 화면 -->
+  <div class="screen on" id="home">
+    <div class="home-top"><span class="badge" aria-label="모은 별">⭐ <b class="star-count">0</b></span><button class="gear" data-go="settings" aria-label="선생님 설정">⚙️</button></div>
+    <div class="home-title">
+      <h1>수의 순서 놀이</h1>
+      <div class="strip" aria-hidden="true">
+        <span style="background:var(--less)">4</span><span style="background:var(--base)">5</span><span style="background:var(--more)">6</span>
+      </div>
+    </div>
+    <div class="menu">
+      <button class="push" data-go="big"><span class="ic" style="background:var(--more)">🐰</span>1 큰 수</button>
+      <button class="push" data-go="small"><span class="ic" style="background:var(--less)">🐢</span>1 작은 수</button>
+      <button class="push" data-go="cont"><span class="ic" style="background:var(--sun)">🚂</span>이어 세기</button>
+      <button class="push" data-go="quiz"><span class="ic" style="background:var(--base)">🎁</span>퀴즈 놀이</button>
+    </div>
+  </div>
+
+  <!-- 1 큰 수 / 1 작은 수 -->
+  <div class="screen" id="step">
+    <div class="top">
+      <button class="sq home-btn" aria-label="처음으로">🏠</button>
+      <h2 id="step-title"></h2>
+      <button class="sq speak-btn" aria-label="다시 듣기">🔊</button>
+    </div>
+    <div class="rbar"><span class="rstar">⭐ <span class="star-count">0</span></span></div>
+    <div class="panel">
+      <p class="say" id="step-say"></p>
+      <div class="line tagged" id="step-line"></div>
+      <div class="choices" id="step-choices"></div>
+      <button class="next" id="step-next" hidden>다음 ▶</button>
+    </div>
+  </div>
+
+  <!-- 이어 세기 -->
+  <div class="screen" id="cont">
+    <div class="top">
+      <button class="sq home-btn" aria-label="처음으로">🏠</button>
+      <h2>🚂 이어 세기</h2>
+      <button class="sq speak-btn" aria-label="다시 듣기">🔊</button>
+    </div>
+    <div class="rbar"><span class="rstar">⭐ <span class="star-count">0</span></span></div>
+    <div class="panel">
+      <p class="say" id="cont-say"></p>
+      <div class="track"><div class="train" id="cont-train"></div></div>
+      <div class="choices" id="cont-choices"></div>
+      <button class="next" id="cont-next" hidden>다음 ▶</button>
+    </div>
+  </div>
+
+  <!-- 맞혀 보기 -->
+  <div class="screen" id="quiz">
+    <div class="top">
+      <button class="sq home-btn" aria-label="처음으로">🏠</button>
+      <h2>🎁 퀴즈 놀이</h2>
+      <button class="sq speak-btn" aria-label="다시 듣기">🔊</button>
+    </div>
+    <div class="rbar"><span class="rstar">⭐ <span class="star-count">0</span></span></div>
+    <div class="panel">
+      <div id="quiz-play">
+        <div class="path" id="quiz-path"></div>
+        <p class="say" id="quiz-say"></p>
+        <div class="line" id="quiz-line"></div>
+        <div class="choices" id="quiz-choices"></div>
+        <button class="next" id="quiz-next" hidden>다음 ▶</button>
+      </div>
+      <div class="endbox" id="quiz-end" hidden>
+        <div class="big">💎</div>
+        <p class="say">보물 상자를 열었어요!</p>
+        <p style="font-size:28px;margin:0">보너스 별 ⭐⭐⭐</p>
+        <button class="next" id="quiz-again">한 번 더 ▶</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 선생님 설정 -->
+  <div class="screen" id="settings">
+    <div class="top">
+      <button class="sq home-btn" aria-label="학습 화면으로 돌아가기">🏠</button>
+      <h2>⚙️ 선생님 설정</h2>
+      <span style="width:62px"></span>
+    </div>
+    <div class="set-list">
+      <div class="set-item">
+        <h3>수의 크기</h3>
+        <p>문제에 나오는 가장 큰 수예요. 처음에는 10이나 20으로 시작해 보세요.</p>
+        <div class="row">
+          <button class="pill" data-range="10">10까지</button>
+          <button class="pill" data-range="20">20까지</button>
+          <button class="pill" data-range="50">50까지</button>
+          <button class="pill" data-range="100">100까지</button>
+        </div>
+      </div>
+      <div class="set-item">
+        <h3>이어 세기 개수</h3>
+        <p>처음 수 다음에 몇 개를 이어 셀지 정해요.</p>
+        <div class="row">
+          <button class="pill" data-count="3">3개</button>
+          <button class="pill" data-count="5">5개</button>
+        </div>
+        <div class="vnote" id="count-note"></div>
+      </div>
+      <div class="set-item">
+        <h3>목소리 안내</h3>
+        <p>문제와 숫자를 소리 내어 읽어 줘요.</p>
+        <div class="row">
+          <button class="pill" data-sound="1">켜기</button>
+          <button class="pill" data-sound="0">끄기</button>
+        </div>
+      </div>
+      <div class="set-item">
+        <h3>목소리 고르기</h3>
+        <p>기기에 있는 한국어 목소리 중에서 골라요. '들어 보기'로 비교해 보세요.</p>
+        <div class="row">
+          <select id="voice-sel" aria-label="목소리 고르기"></select>
+          <button class="pill" id="voice-test">들어 보기</button>
+        </div>
+        <div class="vnote" id="voice-note"></div>
+      </div>
+      <div class="set-item">
+        <h3>말 빠르기</h3>
+        <div class="row">
+          <button class="pill" data-rate="0.75">느리게</button>
+          <button class="pill" data-rate="0.9">보통</button>
+          <button class="pill" data-rate="1.05">빠르게</button>
+        </div>
+      </div>
+      <div class="set-item">
+        <h3>효과음</h3>
+        <p>누를 때, 맞혔을 때 나는 짧은 소리예요.</p>
+        <div class="row">
+          <button class="pill" data-fx="1">켜기</button>
+          <button class="pill" data-fx="0">끄기</button>
+        </div>
+      </div>
+      <div class="set-item">
+        <h3>별 지우기</h3>
+        <p>모은 별을 모두 지워요. 다른 학생이 처음부터 시작할 때 쓰세요.</p>
+        <div class="row"><button class="pill danger" id="reset-btn">별 지우기</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="party" aria-live="polite"><div id="party-text">🎉 잘했어요!</div></div>
+
+<script>
+/* ---------- 도구 ---------- */
+const $=s=>document.getElementById(s);
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const PRAISE=['🎉 잘했어요!','👏 최고예요!','🌟 맞았어요!','😊 멋져요!'];
+const KEY='order-';
+/* 숫자 뒤 조사: 일·삼·육·칠·팔·십·백처럼 받침이 있으면 '이에요' */
+const ieyo=n=>[0,1,3,6,7,8].includes(n%10)?n+'이에요':n+'예요';
+
+const S={range:20,count:3,sound:true,fx:true,voice:'',rate:0.9,stars:0};
+try{
+  const r=Number(localStorage.getItem(KEY+'range'));if([10,20,50,100].includes(r))S.range=r;
+  const c=Number(localStorage.getItem(KEY+'count'));if([3,5].includes(c))S.count=c;
+  const s=localStorage.getItem(KEY+'sound');if(s!==null)S.sound=s==='1';
+  const f=localStorage.getItem(KEY+'fx');if(f!==null)S.fx=f==='1';
+  S.voice=localStorage.getItem(KEY+'voice')||'';
+  const rt=Number(localStorage.getItem(KEY+'rate'));if([0.75,0.9,1.05].includes(rt))S.rate=rt;
+  ['stars'].forEach(k=>{const v=localStorage.getItem(KEY+k);if(v!==null&&!isNaN(+v))S[k]=+v;});
+}catch(e){}
+function save(k,v){try{localStorage.setItem(KEY+k,String(v));}catch(e){}}
+
+/* ---------- 목소리 ---------- */
+let lastSpeech='',koVoices=[];
+function voiceScore(v){
+  const n=v.name;let sc=0;
+  if(/Natural|Neural/i.test(n))sc+=60;
+  if(/Premium|Enhanced|고급|향상/i.test(n))sc+=50;
+  if(/Online/i.test(n))sc+=20;
+  if(/Google/i.test(n))sc+=35;
+  if(/Yuna|유나|SunHi|선희|Heami|해미|InJoon|인준|Hyunsu|Sora/i.test(n))sc+=15;
+  return sc;
+}
+function bestVoice(){
+  if(!koVoices.length)return null;
+  return koVoices.find(v=>v.voiceURI===S.voice)||[...koVoices].sort((a,b)=>voiceScore(b)-voiceScore(a))[0];
+}
+function loadVoices(){
+  try{koVoices=speechSynthesis.getVoices().filter(v=>/^ko/i.test(v.lang)||/Korean|한국/i.test(v.name));}catch(e){koVoices=[];}
+  const sel=$('voice-sel');sel.innerHTML='';
+  const auto=document.createElement('option');auto.value='';auto.textContent='자동 (가장 자연스러운 목소리)';sel.appendChild(auto);
+  [...koVoices].sort((a,b)=>voiceScore(b)-voiceScore(a)).forEach(v=>{const o=document.createElement('option');o.value=v.voiceURI;o.textContent=v.name;sel.appendChild(o);});
+  sel.value=koVoices.some(v=>v.voiceURI===S.voice)?S.voice:'';
+  const b=bestVoice();
+  $('voice-note').textContent=!('speechSynthesis' in window)?'이 브라우저는 목소리 기능을 지원하지 않아요.'
+    :b?`지금 쓰는 목소리: ${b.name}`:'이 기기에서 한국어 목소리를 찾지 못했어요. 엣지(Edge)나 크롬(Chrome)에서 열어 보세요.';
+}
+try{if('speechSynthesis' in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}}catch(e){}
+function say(text){
+  lastSpeech=text;
+  if(!S.sound)return;
+  try{
+    if(!('speechSynthesis' in window))return;
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    const v=bestVoice();if(v)u.voice=v;
+    u.lang=v?v.lang:'ko-KR';u.rate=S.rate;u.pitch=1.05;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+/* 화면 문장(html)과 읽을 말 */
+function show(html,speech){
+  const cur=document.querySelector('.screen.on .say');
+  if(cur)cur.innerHTML=html;
+  say(speech||cur.textContent);
+}
+
+/* ---------- 효과음 ---------- */
+let actx=null;
+function ac(){
+  if(!actx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;actx=new C();}
+  if(actx.state==='suspended')actx.resume();
+  return actx;
+}
+function tone(freq,start,dur,type,vol,slideTo){
+  const c=ac();if(!c)return;
+  const t=c.currentTime+start,o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(freq,t);
+  if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t+dur);
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||0.25,t+0.015);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+0.05);
+}
+const SFX={
+  pop(){tone(520,0,0.13,'sine',0.3,880);},
+  hop(){tone(300,0,0.18,'sine',0.3,900);tone(900,0.18,0.12,'sine',0.15,600);},
+  step(){tone(660,0,0.15,'triangle',0.28);tone(990,0.08,0.18,'triangle',0.18);},
+  right(){[523,659,784].forEach((f,i)=>tone(f,i*0.11,0.3,'triangle',0.28));},
+  wrong(){tone(330,0,0.2,'sine',0.15,262);},
+  train(){[0,.22,.44,.66].forEach(t=>tone(180,t,0.12,'square',0.08,120));tone(880,0.85,0.5,'triangle',0.22);tone(1100,0.85,0.5,'triangle',0.14);},
+  fanfare(){[523,523,659,784,659,784,1047].forEach((f,i)=>tone(f,[0,.15,.3,.45,.65,.8,1][i],i===6?0.6:0.18,'triangle',0.28));}
+};
+function sfx(name){if(!S.fx)return;try{SFX[name]();}catch(e){}}
+
+let partyTimer=null;
+function party(msg,snd){
+  sfx(snd||'right');
+  const p=$('party');$('party-text').textContent=msg||pick(PRAISE);
+  p.classList.add('show');clearTimeout(partyTimer);
+  partyTimer=setTimeout(()=>p.classList.remove('show'),1300);
+}
+
+/* ---------- 별 모으기 (강화) ---------- */
+function friendOr(def){return def;}
+function paintBars(bump){
+  document.querySelectorAll('.star-count').forEach(e=>{e.textContent=S.stars;if(bump){const p=e.parentElement;p.classList.remove('bump');void p.offsetWidth;p.classList.add('bump');}});
+}
+function addStars(n){S.stars+=n;save('stars',S.stars);paintBars(true);}
+let streak=0;
+/* 정답 보상: 별 1개, 처음에 바로 3번 연속 맞히면 보너스 별 */
+function correct(firstTry,quiet){
+  let add=1,msg=null;
+  if(firstTry){streak++;if(streak%3===0){add=2;msg='🔥 3번 연속! 별 2개!';}}else streak=0;
+  if(quiet){if(msg)party(msg);else sfx('step');}else party(msg);
+  setTimeout(()=>addStars(add),quiet?0:400);
+}
+/* 3지선다: 맞을 때까지 다시 고를 수 있어요 */
+function makeChoices(box,list,answer,onRight){
+  box.innerHTML='';let done=false,miss=0;
+  list.forEach(v=>{
+    const b=document.createElement('button');b.className='choice push';b.textContent=v;
+    b.addEventListener('click',()=>{
+      if(done||b.classList.contains('nope'))return;
+      if(v===answer){done=true;b.classList.add('right');say(String(v));onRight(miss===0);}
+      else{miss++;sfx('wrong');b.classList.add('nope');say('다시 골라 볼까요?');}
+    });
+    box.appendChild(b);
+  });
+}
+/* 정답 + 헷갈리기 쉬운 수 2개 (보여 준 수를 먼저 넣어요) */
+function opts(ans,first){
+  const s=new Set([ans]);
+  const cands=[first,...shuffle([ans-1,ans+1,ans+2,ans-2])];
+  for(const x of cands){if(s.size>=3)break;if(x>=1&&x<=S.range&&!s.has(x))s.add(x);}
+  for(const x of [ans+1,ans+2,ans+3,ans-1]){if(s.size>=3)break;if(x>=1&&!s.has(x))s.add(x);}
+  return [...s].sort((a,b)=>a-b);
+}
+
+/* 징검다리 그리기 */
+function renderLine(box,nums,o){
+  box.innerHTML='';
+  nums.forEach((n,i)=>{
+    const st=document.createElement('button');st.className='stone';
+    const isQ=i===o.q;
+    if(i===o.base)st.classList.add('base');
+    if(isQ){st.classList.add('q',o.kind);if(o.revealed)st.classList.add('got');}
+    st.textContent=isQ&&!o.revealed?'?':n;
+    st.setAttribute('aria-label',isQ&&!o.revealed?'물음표':String(n));
+    st.addEventListener('click',()=>say(isQ&&!o.revealed?'무엇일까요?':String(n)));
+    if(o.char&&i===o.charAt){const c=document.createElement('span');c.className='char'+(o.hop?' hop':'');c.textContent=o.char;st.appendChild(c);}
+    if(isQ&&o.tag){const t=document.createElement('span');t.className='tag '+o.kind;t.textContent=o.tag;st.appendChild(t);}
+    box.appendChild(st);
+  });
+}
+
+/* ---------- 화면 이동 ---------- */
+function go(id){
+  const screen=(id==='big'||id==='small')?'step':id;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===screen));
+  window.scrollTo(0,0);
+  if(id==='big'||id==='small'){st.mode=id;stepNew();}
+  if(id==='cont')contNew();
+  if(id==='quiz')quizStart();
+  paintBars();
+  if(id==='home'||id==='settings'){try{speechSynthesis.cancel();}catch(e){}}
+}
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{sfx('pop');go(b.dataset.go);}));
+document.querySelectorAll('.home-btn').forEach(b=>b.addEventListener('click',()=>go('home')));
+document.querySelectorAll('.speak-btn').forEach(b=>b.addEventListener('click',()=>say(lastSpeech)));
+
+/* ---------- 설정 ---------- */
+function paint(){
+  document.querySelectorAll('[data-range]').forEach(b=>b.classList.toggle('on',+b.dataset.range===S.range));
+  document.querySelectorAll('[data-count]').forEach(b=>b.classList.toggle('on',+b.dataset.count===S.count));
+  {const ex=[];for(let i=1;i<=S.count;i++)ex.push(12+i);const cn=document.getElementById('count-note');if(cn)cn.textContent=`지금: 기차 칸 ${S.count}개 (예: 12 → ${ex.join(', ')})`;}
+  document.querySelectorAll('[data-sound]').forEach(b=>b.classList.toggle('on',(b.dataset.sound==='1')===S.sound));
+  document.querySelectorAll('[data-fx]').forEach(b=>b.classList.toggle('on',(b.dataset.fx==='1')===S.fx));
+  document.querySelectorAll('[data-rate]').forEach(b=>b.classList.toggle('on',+b.dataset.rate===S.rate));
+}
+document.querySelectorAll('[data-range]').forEach(b=>b.addEventListener('click',()=>{S.range=+b.dataset.range;save('range',S.range);paint();}));
+document.querySelectorAll('[data-count]').forEach(b=>b.addEventListener('click',()=>{S.count=+b.dataset.count;save('count',S.count);paint();}));
+document.querySelectorAll('[data-sound]').forEach(b=>b.addEventListener('click',()=>{S.sound=b.dataset.sound==='1';save('sound',S.sound?1:0);paint();if(S.sound)say('목소리를 켰어요');}));
+document.querySelectorAll('[data-fx]').forEach(b=>b.addEventListener('click',()=>{S.fx=b.dataset.fx==='1';save('fx',S.fx?1:0);paint();sfx('right');}));
+document.querySelectorAll('[data-rate]').forEach(b=>b.addEventListener('click',()=>{S.rate=+b.dataset.rate;save('rate',S.rate);paint();say('이 빠르기로 말할게요.');}));
+$('voice-sel').addEventListener('change',e=>{S.voice=e.target.value;save('voice',S.voice);loadVoices();say('안녕하세요. 수의 순서 놀이를 해 볼까요?');});
+$('voice-test').addEventListener('click',()=>say('안녕하세요. 열둘, 열셋, 열넷. 잘했어요!'));
+let resetArmed=false;
+$('reset-btn').addEventListener('click',()=>{
+  const b=$('reset-btn');
+  if(!resetArmed){resetArmed=true;b.textContent='한 번 더 누르면 지워져요';setTimeout(()=>{resetArmed=false;b.textContent='별 지우기';},4000);return;}
+  resetArmed=false;S.stars=0;streak=0;save('stars',0);paintBars();b.textContent='지웠어요';
+  setTimeout(()=>{b.textContent='별 지우기';},2000);
+});
+paint();paintBars();
+
+/* ---------- 1 큰 수 / 1 작은 수 ---------- */
+const st={mode:'big'};
+function stepNew(){
+  const R=S.range,big=st.mode==='big';
+  let n,ans,nums,q,base;
+  if(big){
+    n=rand(1,R-1);ans=n+1;nums=[];
+    for(let x=Math.max(1,n-2);x<=n;x++)nums.push(x);
+    nums.push(ans);q=nums.length-1;base=nums.length-2;
+  }else{
+    n=rand(2,R);ans=n-1;nums=[ans];
+    for(let x=n;x<=n+2;x++)nums.push(x);
+    q=0;base=1;
+  }
+  const kind=big?'gt':'lt',tag=big?'1 큰 수 ▶':'◀ 1 작은 수',ch=friendOr(big?'🐰':'🐢');
+  $('step-title').textContent=big?'🐰 1 큰 수':'🐢 1 작은 수';
+  const lineOpt={q,base,kind,tag,char:ch,charAt:base,revealed:false};
+  renderLine($('step-line'),nums,lineOpt);
+  $('step-next').hidden=true;
+  show(`<span class="n">${n}</span>보다 <span class="${kind}">1 ${big?'큰':'작은'} 수</span>는?`,
+       `${n}보다 1 ${big?'큰':'작은'} 수는 무엇일까요?`);
+  makeChoices($('step-choices'),opts(ans,n),ans,first=>{
+    setTimeout(()=>{
+      renderLine($('step-line'),nums,{...lineOpt,revealed:true,charAt:q,hop:true});
+      sfx('hop');
+      setTimeout(()=>{
+        correct(first);
+        show(`<span class="n">${n}</span>보다 1 ${big?'큰':'작은'} 수는 <span class="${kind}" style="font-size:44px">${ans}</span>${ieyo(ans).slice(String(ans).length)}.`,
+             `맞아요! ${n}보다 1 ${big?'큰':'작은'} 수는 ${ieyo(ans)}.`);
+        $('step-next').hidden=false;
+      },500);
+    },350);
+  });
+}
+$('step-next').addEventListener('click',stepNew);
+
+/* ---------- 이어 세기 ---------- */
+const ct={start:1,k:3,idx:1};
+function contRender(go){
+  const tr=$('cont-train');tr.innerHTML='';tr.classList.remove('go');
+  for(let i=0;i<=ct.k;i++){
+    const c=document.createElement('div');c.className='car';
+    if(i===0){c.classList.add('engine');c.innerHTML=`<span class="smoke">💨</span>${ct.start}`;}
+    else if(i<ct.idx){c.classList.add('filled');c.textContent=ct.start+i;}
+    else if(i===ct.idx){c.classList.add('cur');c.textContent='?';}
+    tr.appendChild(c);
+  }
+  if(go){void tr.offsetWidth;tr.classList.add('go');}
+}
+function contNew(){
+  ct.k=S.count;ct.start=rand(1,Math.max(1,S.range-ct.k));ct.idx=1;
+  contRender();$('cont-next').hidden=true;
+  show(`<span class="n">${ct.start}</span>부터 이어 세어요. 다음 수는?`,`${ct.start}부터 이어 세어 볼까요? ${ct.start} 다음은 무엇일까요?`);
+  contAsk();
+}
+function contAsk(){
+  const ans=ct.start+ct.idx;
+  makeChoices($('cont-choices'),opts(ans,ans-1),ans,first=>{
+    ct.idx++;correct(first,true);
+    if(ct.idx>ct.k){
+      contRender(true);$('cont-choices').innerHTML='';
+      const all=[];for(let i=0;i<=ct.k;i++)all.push(ct.start+i);
+      setTimeout(()=>{
+        party('🚂 다 이어 셌어요!','train');
+        show(all.join(', '),'잘했어요! '+all.join(', '));
+        $('cont-next').hidden=false;
+      },300);
+    }else{
+      contRender();
+      setTimeout(()=>{show(`<span class="n">${ans}</span> 다음 수는?`,`${ans} 다음은?`);contAsk();},800);
+    }
+  });
+}
+$('cont-next').addEventListener('click',contNew);
+
+/* ---------- 맞혀 보기 ---------- */
+const QN=5,qz={i:0};
+function quizStart(){qz.i=0;$('quiz-play').hidden=false;$('quiz-end').hidden=true;quizShow();}
+function quizStars(hop){
+  const p=$('quiz-path');p.innerHTML='';
+  for(let k=0;k<=QN;k++){
+    const d=document.createElement('div');d.className='pstone'+(k<=qz.i&&k>0?' done':'');d.textContent=k===0?'🚩':k;
+    if(k===qz.i){const c=document.createElement('span');c.className='char'+(hop?' hop':'');c.textContent=friendOr('🐰');d.appendChild(c);}
+    p.appendChild(d);
+  }
+  const ch=document.createElement('div');ch.className='chest';ch.id='quiz-chest';ch.textContent='🎁';ch.setAttribute('aria-label','보물 상자');p.appendChild(ch);
+}
+function quizShow(){
+  quizStars();$('quiz-next').hidden=true;
+  const R=S.range,type=pick(['big','small','next']);
+  let n,ans,nums,o,html,speech,first;
+  if(type==='big'){
+    n=rand(1,R-1);ans=n+1;nums=[n,ans];o={q:1,base:0,kind:'gt'};first=n;
+    html=`<span class="n">${n}</span>보다 <span class="gt">1 큰 수</span>는?`;speech=`${n}보다 1 큰 수는?`;
+  }else if(type==='small'){
+    n=rand(2,R);ans=n-1;nums=[ans,n];o={q:0,base:1,kind:'lt'};first=n;
+    html=`<span class="n">${n}</span>보다 <span class="lt">1 작은 수</span>는?`;speech=`${n}보다 1 작은 수는?`;
+  }else{
+    const s=rand(1,Math.max(1,R-3));nums=[s,s+1,s+2,s+3];ans=s+3;o={q:3,base:-1,kind:'nx'};first=s+2;
+    html='다음 수는?';speech=`${s}, ${s+1}, ${s+2}. 다음 수는?`;
+  }
+  renderLine($('quiz-line'),nums,{...o,revealed:false});
+  show(html,speech);
+  makeChoices($('quiz-choices'),opts(ans,first),ans,ok1=>{
+    renderLine($('quiz-line'),nums,{...o,revealed:true});
+    qz.i++;quizStars(true);sfx('hop');setTimeout(()=>correct(ok1),300);
+    $('quiz-next').hidden=false;
+  });
+}
+$('quiz-next').addEventListener('click',()=>{
+  if(qz.i>=QN){
+    $('quiz-play').hidden=true;$('quiz-end').hidden=false;
+    party('💎 보물 상자 열기!','fanfare');say('보물 상자를 열었어요! 보너스 별 세 개!');
+    setTimeout(()=>addStars(3),600);
+  }
+  else quizShow();
+});
+$('quiz-again').addEventListener('click',quizStart);
+</script>
+</body>
+</html>
