@@ -80,7 +80,7 @@ button:focus-visible{outline:4px solid var(--sky);outline-offset:3px}
 .say b{color:var(--pink);font-size:56px}
 
 /* 수 배열표 */
-.board{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px;margin:0 auto;max-width:max(300px,calc((100vh - 380px) * 2.25));max-width:max(300px,calc((100dvh - 380px) * 2.25))}
+.board{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px;margin:0 auto;max-width:max(300px,calc((100vh - 430px) * 2.25));max-width:max(300px,calc((100dvh - 430px) * 2.25))}
 .cell{position:relative;aspect-ratio:1/0.86;background:var(--card);border:2px solid var(--line);border-radius:12px;font-size:clamp(20px,5.6vw,52px);line-height:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:4px 0 0;box-shadow:0 3px 0 var(--line)}
 .cell.empty{background:var(--empty);border-color:transparent;box-shadow:none}
 .cell.cur{background:var(--card);border:4px solid var(--gold);box-shadow:0 0 0 0 rgba(255,184,0,.6);animation:glow 1.1s ease-in-out infinite;z-index:2}
@@ -143,6 +143,14 @@ button:focus-visible{outline:4px solid var(--sky);outline-offset:3px}
 
 
 
+/* 별 모으기 */
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--t-card,#fff);border:3px solid var(--acc,#F2A516);border-radius:999px;padding:4px 16px 4px 10px;font-size:26px}
+.badge b{font-weight:400}
+.bump{animation:bump .5s ease}
+@keyframes bump{40%{transform:scale(1.35)}100%{transform:scale(1)}}
+.rbar{width:max-content;margin:0 0 10px auto;display:flex;align-items:center;gap:10px;background:var(--t-card,#fff);border:3px solid var(--acc,#F2A516);border-radius:18px;padding:4px 14px}
+.rstar{font-size:24px;white-space:nowrap;display:inline-block}
+.danger{border-color:#E26B6B!important}
 /* ===== 숫자 놀이 모음 공통 디자인 ===== */
 :root{--t-bg:#FFFAF3;--t-dot:#F1E5D6;--t-card:#FFFFFF;--t-ink:#3A3346;--t-muted:#857A90;--t-line:#EEE2D3;--t-good:#2FA463;--acc:#EC5A8A;--acc-soft:#FFE3EC}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--t-bg:#1F1C24;--t-dot:#2C2833;--t-card:#2A2631;--t-ink:#F3EEF6;--t-muted:#B0A6BA;--t-line:#3D3746;--t-good:#43C17E;--acc-soft:#3E2531}}
@@ -213,7 +221,7 @@ button,select{font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic','Noto Sans
 
   <!-- 처음 화면 -->
   <div class="screen on" id="home">
-    <div class="home-top"><button class="gear" data-go="settings" aria-label="선생님 설정">⚙️</button></div>
+    <div class="home-top"><span class="badge" aria-label="모은 별">⭐ <b class="star-count">0</b></span><button class="gear" data-go="settings" aria-label="선생님 설정">⚙️</button></div>
     <div class="home-mid">
     <div class="title">
       <h1>숫자 마을 <span class="chip">50</span></h1>
@@ -230,6 +238,7 @@ button,select{font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic','Noto Sans
       <h2 id="play-title"></h2>
       <button class="round speak-btn" aria-label="다시 듣기">🔊</button>
     </div>
+    <div class="rbar"><span class="rstar">⭐ <span class="star-count">0</span></span></div>
     <div class="panel">
       <div class="prog" aria-hidden="true"><div class="fill" id="prog-fill"></div><span class="walker" id="prog-walker"></span><span class="goal">🏁</span></div>
       <p class="say" id="play-say"></p>
@@ -298,6 +307,11 @@ button,select{font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic','Noto Sans
           <button class="pill" data-fx="1">켜기</button>
           <button class="pill" data-fx="0">끄기</button>
         </div>
+      </div>
+      <div class="set-item">
+        <h3>별 지우기</h3>
+        <p>모은 별을 모두 지워요. 다른 학생이 처음부터 시작할 때 쓰세요.</p>
+        <div class="row"><button class="pill danger" id="star-reset">별 지우기</button></div>
       </div>
       <div class="set-item">
         <h3>완료 표시 지우기</h3>
@@ -500,7 +514,7 @@ function ask(){
     $('play-say').innerHTML=`<b>${n-1}</b> 다음 수는?`;
     say(`${n-1} 다음 수는 무엇일까요?`);
   }
-  const box=$('choices');box.innerHTML='';let done=false;
+  const box=$('choices');box.innerHTML='';let done=false,miss=0;
   const myGame=gameId;
   makeOpts(n).forEach(v=>{
     const b=document.createElement('button');b.className='choice';b.textContent=v;
@@ -508,6 +522,7 @@ function ask(){
       if(done||b.classList.contains('nope'))return;
       if(v===n){
         done=true;b.classList.add('right');sfx('fill');say(String(n));
+        {const m=reward(miss===0);if(m)party(m,'pop');}
         st.filled.add(n);st.idx++;
         renderBoard(n);
         setTimeout(()=>{
@@ -515,7 +530,7 @@ function ask(){
           if(st.idx>=st.blanks.length){finish();return;}
           sfx('hop');renderBoard(null,true);ask();
         },900);
-      }else{sfx('wrong');b.classList.add('nope');say('다시 골라 볼까요?');}
+      }else{miss++;sfx('wrong');b.classList.add('nope');say('다시 골라 볼까요?');}
     });
     box.appendChild(b);
   });
@@ -525,7 +540,7 @@ function finish(){
   renderBoard();
   if(!S.cleared.includes(st.level)){S.cleared.push(st.level);save('cleared',S.cleared);}
   const s=STAGES[st.level];
-  party(`${s.ch} 다 채웠어요!`,'fanfare');confetti();
+  party(`${s.ch} 다 채웠어요! 보너스 별 3개`,'fanfare');confetti();setTimeout(()=>addStars(3),700);
   $('play-say').textContent='숫자 마을을 다 채웠어요!';
   const ga=(s.name.charCodeAt(s.name.length-1)-0xAC00)%28?'이':'가';
   say(`다 채웠어요! ${s.name}${ga} 정말 기뻐해요!`);
@@ -558,6 +573,30 @@ $('reset-btn').addEventListener('click',()=>{
   setTimeout(()=>{b.textContent='완료 표시 지우기';},2000);
 });
 paint();paintMap();
+
+/* ---------- 별 모으기 (강화) ---------- */
+let stars=0,streak=0;
+try{const v=Number(localStorage.getItem('chart50-stars'));if(v>0)stars=v;}catch(e){}
+function paintBars(bump){
+  document.querySelectorAll('.star-count').forEach(e=>{e.textContent=stars;if(bump){const p=e.parentElement;p.classList.remove('bump');void p.offsetWidth;p.classList.add('bump');}});
+}
+function addStars(n){stars+=n;try{localStorage.setItem('chart50-stars',String(stars));}catch(e){}paintBars(true);}
+/* 정답 보상: 별 1개, 처음 고른 답으로 3번 연속 맞히면 별 2개. 칭찬 문구를 돌려줘요 */
+function reward(firstTry){
+  let add=1,msg=null;
+  if(firstTry){streak++;if(streak%3===0){add=2;msg='🔥 3번 연속! 별 2개!';}}else streak=0;
+  setTimeout(()=>addStars(add),400);
+  return msg;
+}
+(function(){
+  const b=document.getElementById('star-reset');if(!b)return;let armed=false;
+  b.addEventListener('click',()=>{
+    if(!armed){armed=true;b.textContent='한 번 더 누르면 지워져요';setTimeout(()=>{armed=false;b.textContent='별 지우기';},4000);return;}
+    armed=false;stars=0;streak=0;try{localStorage.setItem('chart50-stars','0');}catch(e){}paintBars();b.textContent='지웠어요';
+    setTimeout(()=>{b.textContent='별 지우기';},2000);
+  });
+  paintBars();
+})();
 </script>
 </body>
 </html>

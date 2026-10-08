@@ -29,13 +29,14 @@ nav{flex:0 0 auto;display:flex;gap:8px;padding:8px 10px;background:var(--bar);bo
 .tab:focus-visible{outline:4px solid var(--c);outline-offset:2px}
 main{flex:1 1 auto;position:relative;min-height:0}
 .tab.home{flex:0 0 auto;width:64px}
-#cover{position:absolute;inset:0;overflow:auto;display:flex;align-items:center;justify-content:center;padding:20px 14px;
+#cover{position:absolute;inset:0;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:14px;
   background-color:var(--bg);background-image:radial-gradient(var(--dot) 2px,transparent 2.6px);background-size:26px 26px}
-.cv{max-width:980px;width:100%;text-align:center}
-.cv-deco{display:flex;justify-content:center;gap:10px;margin-bottom:10px}
-.cv-deco span{width:58px;height:58px;border-radius:16px;color:#fff;font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;transform:rotate(var(--r));box-shadow:0 5px 0 rgba(0,0,0,.12)}
-.cv h1{margin:0;font-size:clamp(42px,8vw,68px);font-weight:400}
-.cv-sub{margin:4px 0 24px;color:var(--muted);font-size:clamp(18px,3vw,23px)}
+.cv{max-width:860px;width:100%;text-align:center;padding-top:60px} /* 앱의 맨 윗줄(52px+8px)과 같은 자리 */
+.cv-deco{display:flex;justify-content:center;gap:10px;margin:8px 0 0;height:52px;align-items:center}
+.cv-deco span{width:52px;height:52px;border-radius:16px;color:#fff;font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;transform:rotate(var(--r));box-shadow:0 5px 0 rgba(0,0,0,.12)}
+.cv h1{margin:0;font-size:clamp(38px,8vw,56px);font-weight:400;height:62px;line-height:62px}
+.cv-head{min-height:124px;margin-bottom:18px}
+.cv-sub{display:none}
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .card{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 12px 18px;border-radius:24px;border:3px solid var(--line);background:var(--bar);color:var(--ink);font:inherit;cursor:pointer;box-shadow:0 6px 0 var(--line);transition:transform .08s}
 .card:active{transform:translateY(5px);box-shadow:0 1px 0 var(--line)}
@@ -45,6 +46,7 @@ main{flex:1 1 auto;position:relative;min-height:0}
 .cname{font-size:26px;margin-top:4px}
 .cdesc{font-size:17px;color:var(--muted)}
 .cv-note{margin:26px 0 0;color:var(--muted);font-size:16px}
+@media (max-width:520px){.cv h1{height:44px;line-height:44px}.cv-head{min-height:104px}.cv-deco{height:44px}}
 @media (max-width:560px){.cards{grid-template-columns:1fr;gap:12px}.card{flex-direction:row;padding:14px 14px 14px 54px;text-align:left}.cic{width:60px;height:60px;font-size:34px}.cname{font-size:20px}.card .cdesc{display:none}.cv-deco span{width:44px;height:44px;font-size:20px}.tab.home{width:52px}}
 iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
 @media (max-width:560px){
@@ -64,11 +66,13 @@ iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
 <main>
 <section id="cover" hidden>
   <div class="cv">
-    <div class="cv-deco" aria-hidden="true"><span style="--r:-6deg;background:#178F80">1</span><span style="--r:4deg;background:#E08E00">10</span><span style="--r:-4deg;background:#EC5A8A">50</span></div>
+    <div class="cv-head">
     <h1>숫자 놀이 모음</h1>
+    <div class="cv-deco" aria-hidden="true"><span style="--r:-6deg;background:#178F80">1</span><span style="--r:4deg;background:#E08E00">10</span><span style="--r:-4deg;background:#EC5A8A">50</span></div>
+    </div>
     <p class="cv-sub">초등학교 1학년 수학 · 50까지의 수</p>
     <div class="cards"><button class="card" data-app="order" style="--c:#178F80"><span class="cno">1</span><span class="cic">🐰</span><span class="cname">수의 순서 알기</span><span class="cdesc">1 큰 수 · 1 작은 수 · 이어 세기</span></button><button class="card" data-app="tens" style="--c:#E08E00"><span class="cno">2</span><span class="cic">🔟</span><span class="cname">10씩 묶어 세기</span><span class="cdesc">10개씩 묶음과 낱개로 수 세기</span></button><button class="card" data-app="chart" style="--c:#EC5A8A"><span class="cno">3</span><span class="cic">🔢</span><span class="cname">1~50까지의 수</span><span class="cdesc">1부터 50까지 빈칸 채우기</span></button></div>
-    <p class="cv-note">1번부터 차례대로 해 보세요. 선생님 설정은 각 놀이 첫 화면 오른쪽 위 ⚙️에 있어요.</p>
+    <p class="cv-note">초등학교 1학년 수학 · 50까지의 수<br>1번부터 차례대로 해 보세요. 선생님 설정은 각 놀이 첫 화면 오른쪽 위 ⚙️에 있어요.</p>
   </div>
 </section>
 <iframe id="app-order" title="수의 순서 알기" srcdoc="&lt;!DOCTYPE html&gt;
@@ -934,6 +938,14 @@ button:focus-visible{outline:4px solid var(--one);outline-offset:3px}
 
 
 
+/* 별 모으기 */
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--t-card,#fff);border:3px solid var(--acc,#F2A516);border-radius:999px;padding:4px 16px 4px 10px;font-size:26px}
+.badge b{font-weight:400}
+.bump{animation:bump .5s ease}
+@keyframes bump{40%{transform:scale(1.35)}100%{transform:scale(1)}}
+.rbar{width:max-content;margin:0 0 10px auto;display:flex;align-items:center;gap:10px;background:var(--t-card,#fff);border:3px solid var(--acc,#F2A516);border-radius:18px;padding:4px 14px}
+.rstar{font-size:24px;white-space:nowrap;display:inline-block}
+.danger{border-color:#E26B6B!important}
 /* ===== 숫자 놀이 모음 공통 디자인 ===== */
 :root{--t-bg:#FFFAF3;--t-dot:#F1E5D6;--t-card:#FFFFFF;--t-ink:#3A3346;--t-muted:#857A90;--t-line:#EEE2D3;--t-good:#2FA463;--acc:#E08E00;--acc-soft:#FFF0D3}
 @media (prefers-color-scheme: dark){:root:not([data-theme=&quot;light&quot;]){--t-bg:#1F1C24;--t-dot:#2C2833;--t-card:#2A2631;--t-ink:#F3EEF6;--t-muted:#B0A6BA;--t-line:#3D3746;--t-good:#43C17E;--acc-soft:#3D3020}}
@@ -988,7 +1000,7 @@ button,select{font-family:&#x27;Jua&#x27;,&#x27;Apple SD Gothic Neo&#x27;,&#x27;
 
   &lt;!-- 처음 화면 --&gt;
   &lt;div class=&quot;screen on&quot; id=&quot;home&quot;&gt;
-    &lt;div class=&quot;home-top&quot;&gt;&lt;button class=&quot;gear&quot; data-go=&quot;settings&quot; aria-label=&quot;선생님 설정&quot;&gt;⚙️&lt;/button&gt;&lt;/div&gt;
+    &lt;div class=&quot;home-top&quot;&gt;&lt;span class=&quot;badge&quot; aria-label=&quot;모은 별&quot;&gt;⭐ &lt;b class=&quot;star-count&quot;&gt;0&lt;/b&gt;&lt;/span&gt;&lt;button class=&quot;gear&quot; data-go=&quot;settings&quot; aria-label=&quot;선생님 설정&quot;&gt;⚙️&lt;/button&gt;&lt;/div&gt;
     &lt;div class=&quot;home-title&quot;&gt;&lt;h1&gt;&lt;span&gt;10&lt;/span&gt;씩 묶어 세기&lt;/h1&gt;&lt;p class=&quot;hsub&quot;&gt;10개씩 묶어서 세어 봐요!&lt;/p&gt;&lt;/div&gt;
     &lt;div class=&quot;menu&quot;&gt;
       &lt;button data-go=&quot;a1&quot;&gt;&lt;span class=&quot;ic&quot;&gt;🍎&lt;/span&gt;묶어 보기&lt;/button&gt;
@@ -1042,6 +1054,11 @@ button,select{font-family:&#x27;Jua&#x27;,&#x27;Apple SD Gothic Neo&#x27;,&#x27;
         &lt;/div&gt;
       &lt;/div&gt;
       &lt;div class=&quot;set-item&quot;&gt;
+        &lt;h3&gt;별 지우기&lt;/h3&gt;
+        &lt;p&gt;모은 별을 모두 지워요. 다른 학생이 처음부터 시작할 때 쓰세요.&lt;/p&gt;
+        &lt;div class=&quot;row&quot;&gt;&lt;button class=&quot;pill danger&quot; id=&quot;star-reset&quot;&gt;별 지우기&lt;/button&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;set-item&quot;&gt;
         &lt;h3&gt;효과음&lt;/h3&gt;
         &lt;p&gt;누를 때, 맞혔을 때 나는 짧은 소리예요.&lt;/p&gt;
         &lt;div class=&quot;row&quot;&gt;
@@ -1059,6 +1076,7 @@ button,select{font-family:&#x27;Jua&#x27;,&#x27;Apple SD Gothic Neo&#x27;,&#x27;
       &lt;h2&gt;🍎 묶어 보기&lt;/h2&gt;
       &lt;button class=&quot;round speak-btn&quot; aria-label=&quot;다시 듣기&quot;&gt;🔊&lt;/button&gt;
     &lt;/div&gt;
+    &lt;div class=&quot;rbar&quot;&gt;&lt;span class=&quot;rstar&quot;&gt;⭐ &lt;span class=&quot;star-count&quot;&gt;0&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
     &lt;div class=&quot;panel&quot;&gt;
       &lt;p class=&quot;say&quot; id=&quot;a1-say&quot;&gt;&lt;/p&gt;
       &lt;div class=&quot;field&quot; id=&quot;a1-field&quot;&gt;&lt;/div&gt;
@@ -1080,6 +1098,7 @@ button,select{font-family:&#x27;Jua&#x27;,&#x27;Apple SD Gothic Neo&#x27;,&#x27;
       &lt;h2&gt;🧱 블록 쌓기&lt;/h2&gt;
       &lt;button class=&quot;round speak-btn&quot; aria-label=&quot;다시 듣기&quot;&gt;🔊&lt;/button&gt;
     &lt;/div&gt;
+    &lt;div class=&quot;rbar&quot;&gt;&lt;span class=&quot;rstar&quot;&gt;⭐ &lt;span class=&quot;star-count&quot;&gt;0&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
     &lt;div class=&quot;panel&quot;&gt;
       &lt;p class=&quot;say&quot; id=&quot;a2-say&quot;&gt;&lt;/p&gt;
       &lt;div class=&quot;target&quot; id=&quot;a2-target&quot;&gt;&lt;/div&gt;
@@ -1112,6 +1131,7 @@ button,select{font-family:&#x27;Jua&#x27;,&#x27;Apple SD Gothic Neo&#x27;,&#x27;
       &lt;h2&gt;🐸 10씩 세기&lt;/h2&gt;
       &lt;button class=&quot;round speak-btn&quot; aria-label=&quot;다시 듣기&quot;&gt;🔊&lt;/button&gt;
     &lt;/div&gt;
+    &lt;div class=&quot;rbar&quot;&gt;&lt;span class=&quot;rstar&quot;&gt;⭐ &lt;span class=&quot;star-count&quot;&gt;0&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
     &lt;div class=&quot;panel&quot;&gt;
       &lt;p class=&quot;say&quot; id=&quot;a3-say&quot;&gt;&lt;/p&gt;
       &lt;div class=&quot;seq&quot; id=&quot;a3-seq&quot;&gt;&lt;/div&gt;
@@ -1127,6 +1147,7 @@ button,select{font-family:&#x27;Jua&#x27;,&#x27;Apple SD Gothic Neo&#x27;,&#x27;
       &lt;h2&gt;⭐ 맞혀 보기&lt;/h2&gt;
       &lt;button class=&quot;round speak-btn&quot; aria-label=&quot;다시 듣기&quot;&gt;🔊&lt;/button&gt;
     &lt;/div&gt;
+    &lt;div class=&quot;rbar&quot;&gt;&lt;span class=&quot;rstar&quot;&gt;⭐ &lt;span class=&quot;star-count&quot;&gt;0&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
     &lt;div class=&quot;panel&quot;&gt;
       &lt;div id=&quot;a4-play&quot;&gt;
         &lt;div class=&quot;stars&quot; id=&quot;a4-stars&quot;&gt;&lt;/div&gt;
@@ -1253,14 +1274,14 @@ function cubeEl(){const c=document.createElement(&#x27;div&#x27;);c.className=&#
 
 /* 3지선다: 정답이 맞을 때까지 다시 고를 수 있어요 */
 function makeChoices(box,list,answer,onRight,fmt){
-  box.innerHTML=&#x27;&#x27;;let done=false;
+  box.innerHTML=&#x27;&#x27;;let done=false,miss=0;
   list.forEach(v=&gt;{
     const b=document.createElement(&#x27;button&#x27;);b.className=&#x27;choice&#x27;;b.textContent=fmt?fmt(v):v;
     b.addEventListener(&#x27;click&#x27;,()=&gt;{
       if(done||b.classList.contains(&#x27;nope&#x27;))return;
       say(String(v));
-      if(v===answer){done=true;b.classList.add(&#x27;right&#x27;);onRight();}
-      else{sfx(&#x27;wrong&#x27;);b.classList.add(&#x27;nope&#x27;);setTimeout(()=&gt;show(&#x27;다시 골라 볼까요?&#x27;),500);}
+      if(v===answer){done=true;b.classList.add(&#x27;right&#x27;);onRight(miss===0);}
+      else{miss++;sfx(&#x27;wrong&#x27;);b.classList.add(&#x27;nope&#x27;);setTimeout(()=&gt;show(&#x27;다시 골라 볼까요?&#x27;),500);}
     });
     box.appendChild(b);
   });
@@ -1347,8 +1368,8 @@ function a1CheckEnd(){
   const text=`10개 묶음이 ${B}개, 낱개가 ${O}개 있어요. 모두 몇 개일까요?`;
   show(text);
   $(&#x27;a1-ask&#x27;).hidden=false;
-  makeChoices($(&#x27;a1-choices&#x27;),threeOpts(N,Math.max(S.range,20)),N,()=&gt;{
-    party();show(`맞아요! 10개 묶음 ${B}개와 낱개 ${O}개는 ${N}이에요.`,`맞아요! ${N}이에요.`);
+  makeChoices($(&#x27;a1-choices&#x27;),threeOpts(N,Math.max(S.range,20)),N,first=&gt;{
+    party(reward(first));show(`맞아요! 10개 묶음 ${B}개와 낱개 ${O}개는 ${N}이에요.`,`맞아요! ${N}이에요.`);
     $(&#x27;a1-next&#x27;).hidden=false;
   });
 }
@@ -1357,7 +1378,7 @@ $(&#x27;a1-next&#x27;).addEventListener(&#x27;click&#x27;,a1New);
 /* ---------- 2. 블록 쌓기 ---------- */
 const a2={target:0,tens:0,ones:0,done:false};
 function a2New(){
-  a2.target=rand(11,Math.max(12,S.range));a2.tens=0;a2.ones=0;a2.done=false;
+  a2.target=rand(11,Math.max(12,S.range));a2.tens=0;a2.ones=0;a2.done=false;a2.miss=false;
   const t=Math.floor(a2.target/10),o=a2.target%10;
   $(&#x27;a2-target&#x27;).innerHTML=`&lt;span class=&quot;t&quot;&gt;${t}&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;${o}&lt;/span&gt;`;
   $(&#x27;a2-hint&#x27;).textContent=`🟧 10 막대 ${t}개,  🟦 1 블록 ${o}개`;
@@ -1378,11 +1399,11 @@ function a2Render(){
 function a2After(){
   const v=a2Render(),t=Math.floor(a2.target/10),o=a2.target%10;
   if(v===a2.target){
-    a2.done=true;a2Render();party();
+    a2.done=true;a2Render();party(reward(!a2.miss));
     show(`맞아요! 10 막대 ${t}개와 1 블록 ${o}개는 ${a2.target}이에요.`,`맞아요! ${sino(a2.target)}이에요.`);
     $(&#x27;a2-next&#x27;).hidden=false;
-  }else if(a2.tens&gt;t){show(&#x27;10 막대가 너무 많아요. 하나 빼 볼까요?&#x27;);}
-  else if(a2.tens===t&amp;&amp;a2.ones&gt;o){show(&#x27;1 블록이 너무 많아요. 하나 빼 볼까요?&#x27;);}
+  }else if(a2.tens&gt;t){a2.miss=true;show(&#x27;10 막대가 너무 많아요. 하나 빼 볼까요?&#x27;);}
+  else if(a2.tens===t&amp;&amp;a2.ones&gt;o){a2.miss=true;show(&#x27;1 블록이 너무 많아요. 하나 빼 볼까요?&#x27;);}
 }
 $(&#x27;a2-tadd&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{if(a2.tens&lt;9){a2.tens++;sfx(&#x27;block&#x27;);say(&#x27;십&#x27;);a2After();}});
 $(&#x27;a2-tsub&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{if(a2.tens&gt;0){a2.tens--;sfx(&#x27;remove&#x27;);a2After();}});
@@ -1417,10 +1438,10 @@ function a3New(){
   $(&#x27;a3-next&#x27;).hidden=true;
   show(&#x27;10씩 세어요. 다음 수는 무엇일까요?&#x27;,shown.slice(0,-1).map(sino).join(&#x27;, &#x27;)+&#x27;. 다음 수는 무엇일까요?&#x27;);
   const answer=ans*10;
-  makeChoices($(&#x27;a3-choices&#x27;),threeOpts(answer,maxT*10,10),answer,()=&gt;{
+  makeChoices($(&#x27;a3-choices&#x27;),threeOpts(answer,maxT*10,10),answer,first=&gt;{
     const q=box.lastChild;q.classList.remove(&#x27;q&#x27;);q.querySelector(&#x27;.n&#x27;).textContent=answer;
     const pics=q.querySelector(&#x27;.pics&#x27;);for(let r=0;r&lt;ans;r++)pics.appendChild(rodEl());
-    party();show(`맞아요! ${answer}이에요. 10이 ${ans}개예요.`,`맞아요! ${sino(answer)}, ${NT[ans]}.`);
+    party(reward(first));show(`맞아요! ${answer}이에요. 10이 ${ans}개예요.`,`맞아요! ${sino(answer)}, ${NT[ans]}.`);
     $(&#x27;a3-next&#x27;).hidden=false;
   });
 }
@@ -1447,17 +1468,41 @@ function a4Show(){
   }
   $(&#x27;a4-next&#x27;).hidden=true;
   show(&#x27;모두 몇 개일까요?&#x27;,kind===&#x27;blocks&#x27;?&#x27;10 막대와 1 블록이 있어요. 모두 몇 개일까요?&#x27;:&#x27;10개 묶음과 낱개가 있어요. 모두 몇 개일까요?&#x27;);
-  makeChoices($(&#x27;a4-choices&#x27;),threeOpts(n,Math.max(S.range,20)),n,()=&gt;{
+  makeChoices($(&#x27;a4-choices&#x27;),threeOpts(n,Math.max(S.range,20)),n,first=&gt;{
     a4.i++;$(&#x27;a4-stars&#x27;).textContent=&#x27;⭐&#x27;.repeat(a4.i)+&#x27;☆&#x27;.repeat(A4N-a4.i);
-    party();show(`맞아요! 10이 ${a}개, 1이 ${b}개라서 ${n}이에요.`,`맞아요! ${sino(n)}이에요.`);
+    party(reward(first));show(`맞아요! 10이 ${a}개, 1이 ${b}개라서 ${n}이에요.`,`맞아요! ${sino(n)}이에요.`);
     $(&#x27;a4-next&#x27;).hidden=false;
   });
 }
 $(&#x27;a4-next&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{
-  if(a4.i&gt;=A4N){$(&#x27;a4-play&#x27;).hidden=true;$(&#x27;a4-end&#x27;).hidden=false;party(&#x27;🏆 다 했어요!&#x27;,&#x27;fanfare&#x27;);show(&#x27;다 풀었어요! 정말 잘했어요!&#x27;);}
+  if(a4.i&gt;=A4N){$(&#x27;a4-play&#x27;).hidden=true;$(&#x27;a4-end&#x27;).hidden=false;party(&#x27;🏆 다 했어요! 보너스 별 3개&#x27;,&#x27;fanfare&#x27;);setTimeout(()=&gt;addStars(3),600);show(&#x27;다 풀었어요! 정말 잘했어요!&#x27;);}
   else a4Show();
 });
 $(&#x27;a4-again&#x27;).addEventListener(&#x27;click&#x27;,a4Start);
+
+/* ---------- 별 모으기 (강화) ---------- */
+let stars=0,streak=0;
+try{const v=Number(localStorage.getItem(&#x27;t10-stars&#x27;));if(v&gt;0)stars=v;}catch(e){}
+function paintBars(bump){
+  document.querySelectorAll(&#x27;.star-count&#x27;).forEach(e=&gt;{e.textContent=stars;if(bump){const p=e.parentElement;p.classList.remove(&#x27;bump&#x27;);void p.offsetWidth;p.classList.add(&#x27;bump&#x27;);}});
+}
+function addStars(n){stars+=n;try{localStorage.setItem(&#x27;t10-stars&#x27;,String(stars));}catch(e){}paintBars(true);}
+/* 정답 보상: 별 1개, 처음 고른 답으로 3번 연속 맞히면 별 2개. 칭찬 문구를 돌려줘요 */
+function reward(firstTry){
+  let add=1,msg=null;
+  if(firstTry){streak++;if(streak%3===0){add=2;msg=&#x27;🔥 3번 연속! 별 2개!&#x27;;}}else streak=0;
+  setTimeout(()=&gt;addStars(add),400);
+  return msg;
+}
+(function(){
+  const b=document.getElementById(&#x27;star-reset&#x27;);if(!b)return;let armed=false;
+  b.addEventListener(&#x27;click&#x27;,()=&gt;{
+    if(!armed){armed=true;b.textContent=&#x27;한 번 더 누르면 지워져요&#x27;;setTimeout(()=&gt;{armed=false;b.textContent=&#x27;별 지우기&#x27;;},4000);return;}
+    armed=false;stars=0;streak=0;try{localStorage.setItem(&#x27;t10-stars&#x27;,&#x27;0&#x27;);}catch(e){}paintBars();b.textContent=&#x27;지웠어요&#x27;;
+    setTimeout(()=&gt;{b.textContent=&#x27;별 지우기&#x27;;},2000);
+  });
+  paintBars();
+})();
 &lt;/script&gt;
 
 &lt;script&gt;
@@ -1583,7 +1628,7 @@ button:focus-visible{outline:4px solid var(--sky);outline-offset:3px}
 .say b{color:var(--pink);font-size:56px}
 
 /* 수 배열표 */
-.board{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px;margin:0 auto;max-width:max(300px,calc((100vh - 380px) * 2.25));max-width:max(300px,calc((100dvh - 380px) * 2.25))}
+.board{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px;margin:0 auto;max-width:max(300px,calc((100vh - 430px) * 2.25));max-width:max(300px,calc((100dvh - 430px) * 2.25))}
 .cell{position:relative;aspect-ratio:1/0.86;background:var(--card);border:2px solid var(--line);border-radius:12px;font-size:clamp(20px,5.6vw,52px);line-height:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:4px 0 0;box-shadow:0 3px 0 var(--line)}
 .cell.empty{background:var(--empty);border-color:transparent;box-shadow:none}
 .cell.cur{background:var(--card);border:4px solid var(--gold);box-shadow:0 0 0 0 rgba(255,184,0,.6);animation:glow 1.1s ease-in-out infinite;z-index:2}
@@ -1646,6 +1691,14 @@ button:focus-visible{outline:4px solid var(--sky);outline-offset:3px}
 
 
 
+/* 별 모으기 */
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--t-card,#fff);border:3px solid var(--acc,#F2A516);border-radius:999px;padding:4px 16px 4px 10px;font-size:26px}
+.badge b{font-weight:400}
+.bump{animation:bump .5s ease}
+@keyframes bump{40%{transform:scale(1.35)}100%{transform:scale(1)}}
+.rbar{width:max-content;margin:0 0 10px auto;display:flex;align-items:center;gap:10px;background:var(--t-card,#fff);border:3px solid var(--acc,#F2A516);border-radius:18px;padding:4px 14px}
+.rstar{font-size:24px;white-space:nowrap;display:inline-block}
+.danger{border-color:#E26B6B!important}
 /* ===== 숫자 놀이 모음 공통 디자인 ===== */
 :root{--t-bg:#FFFAF3;--t-dot:#F1E5D6;--t-card:#FFFFFF;--t-ink:#3A3346;--t-muted:#857A90;--t-line:#EEE2D3;--t-good:#2FA463;--acc:#EC5A8A;--acc-soft:#FFE3EC}
 @media (prefers-color-scheme: dark){:root:not([data-theme=&quot;light&quot;]){--t-bg:#1F1C24;--t-dot:#2C2833;--t-card:#2A2631;--t-ink:#F3EEF6;--t-muted:#B0A6BA;--t-line:#3D3746;--t-good:#43C17E;--acc-soft:#3E2531}}
@@ -1716,7 +1769,7 @@ button,select{font-family:&#x27;Jua&#x27;,&#x27;Apple SD Gothic Neo&#x27;,&#x27;
 
   &lt;!-- 처음 화면 --&gt;
   &lt;div class=&quot;screen on&quot; id=&quot;home&quot;&gt;
-    &lt;div class=&quot;home-top&quot;&gt;&lt;button class=&quot;gear&quot; data-go=&quot;settings&quot; aria-label=&quot;선생님 설정&quot;&gt;⚙️&lt;/button&gt;&lt;/div&gt;
+    &lt;div class=&quot;home-top&quot;&gt;&lt;span class=&quot;badge&quot; aria-label=&quot;모은 별&quot;&gt;⭐ &lt;b class=&quot;star-count&quot;&gt;0&lt;/b&gt;&lt;/span&gt;&lt;button class=&quot;gear&quot; data-go=&quot;settings&quot; aria-label=&quot;선생님 설정&quot;&gt;⚙️&lt;/button&gt;&lt;/div&gt;
     &lt;div class=&quot;home-mid&quot;&gt;
     &lt;div class=&quot;title&quot;&gt;
       &lt;h1&gt;숫자 마을 &lt;span class=&quot;chip&quot;&gt;50&lt;/span&gt;&lt;/h1&gt;
@@ -1733,6 +1786,7 @@ button,select{font-family:&#x27;Jua&#x27;,&#x27;Apple SD Gothic Neo&#x27;,&#x27;
       &lt;h2 id=&quot;play-title&quot;&gt;&lt;/h2&gt;
       &lt;button class=&quot;round speak-btn&quot; aria-label=&quot;다시 듣기&quot;&gt;🔊&lt;/button&gt;
     &lt;/div&gt;
+    &lt;div class=&quot;rbar&quot;&gt;&lt;span class=&quot;rstar&quot;&gt;⭐ &lt;span class=&quot;star-count&quot;&gt;0&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
     &lt;div class=&quot;panel&quot;&gt;
       &lt;div class=&quot;prog&quot; aria-hidden=&quot;true&quot;&gt;&lt;div class=&quot;fill&quot; id=&quot;prog-fill&quot;&gt;&lt;/div&gt;&lt;span class=&quot;walker&quot; id=&quot;prog-walker&quot;&gt;&lt;/span&gt;&lt;span class=&quot;goal&quot;&gt;🏁&lt;/span&gt;&lt;/div&gt;
       &lt;p class=&quot;say&quot; id=&quot;play-say&quot;&gt;&lt;/p&gt;
@@ -1801,6 +1855,11 @@ button,select{font-family:&#x27;Jua&#x27;,&#x27;Apple SD Gothic Neo&#x27;,&#x27;
           &lt;button class=&quot;pill&quot; data-fx=&quot;1&quot;&gt;켜기&lt;/button&gt;
           &lt;button class=&quot;pill&quot; data-fx=&quot;0&quot;&gt;끄기&lt;/button&gt;
         &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;set-item&quot;&gt;
+        &lt;h3&gt;별 지우기&lt;/h3&gt;
+        &lt;p&gt;모은 별을 모두 지워요. 다른 학생이 처음부터 시작할 때 쓰세요.&lt;/p&gt;
+        &lt;div class=&quot;row&quot;&gt;&lt;button class=&quot;pill danger&quot; id=&quot;star-reset&quot;&gt;별 지우기&lt;/button&gt;&lt;/div&gt;
       &lt;/div&gt;
       &lt;div class=&quot;set-item&quot;&gt;
         &lt;h3&gt;완료 표시 지우기&lt;/h3&gt;
@@ -2003,7 +2062,7 @@ function ask(){
     $(&#x27;play-say&#x27;).innerHTML=`&lt;b&gt;${n-1}&lt;/b&gt; 다음 수는?`;
     say(`${n-1} 다음 수는 무엇일까요?`);
   }
-  const box=$(&#x27;choices&#x27;);box.innerHTML=&#x27;&#x27;;let done=false;
+  const box=$(&#x27;choices&#x27;);box.innerHTML=&#x27;&#x27;;let done=false,miss=0;
   const myGame=gameId;
   makeOpts(n).forEach(v=&gt;{
     const b=document.createElement(&#x27;button&#x27;);b.className=&#x27;choice&#x27;;b.textContent=v;
@@ -2011,6 +2070,7 @@ function ask(){
       if(done||b.classList.contains(&#x27;nope&#x27;))return;
       if(v===n){
         done=true;b.classList.add(&#x27;right&#x27;);sfx(&#x27;fill&#x27;);say(String(n));
+        {const m=reward(miss===0);if(m)party(m,&#x27;pop&#x27;);}
         st.filled.add(n);st.idx++;
         renderBoard(n);
         setTimeout(()=&gt;{
@@ -2018,7 +2078,7 @@ function ask(){
           if(st.idx&gt;=st.blanks.length){finish();return;}
           sfx(&#x27;hop&#x27;);renderBoard(null,true);ask();
         },900);
-      }else{sfx(&#x27;wrong&#x27;);b.classList.add(&#x27;nope&#x27;);say(&#x27;다시 골라 볼까요?&#x27;);}
+      }else{miss++;sfx(&#x27;wrong&#x27;);b.classList.add(&#x27;nope&#x27;);say(&#x27;다시 골라 볼까요?&#x27;);}
     });
     box.appendChild(b);
   });
@@ -2028,7 +2088,7 @@ function finish(){
   renderBoard();
   if(!S.cleared.includes(st.level)){S.cleared.push(st.level);save(&#x27;cleared&#x27;,S.cleared);}
   const s=STAGES[st.level];
-  party(`${s.ch} 다 채웠어요!`,&#x27;fanfare&#x27;);confetti();
+  party(`${s.ch} 다 채웠어요! 보너스 별 3개`,&#x27;fanfare&#x27;);confetti();setTimeout(()=&gt;addStars(3),700);
   $(&#x27;play-say&#x27;).textContent=&#x27;숫자 마을을 다 채웠어요!&#x27;;
   const ga=(s.name.charCodeAt(s.name.length-1)-0xAC00)%28?&#x27;이&#x27;:&#x27;가&#x27;;
   say(`다 채웠어요! ${s.name}${ga} 정말 기뻐해요!`);
@@ -2061,6 +2121,30 @@ $(&#x27;reset-btn&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{
   setTimeout(()=&gt;{b.textContent=&#x27;완료 표시 지우기&#x27;;},2000);
 });
 paint();paintMap();
+
+/* ---------- 별 모으기 (강화) ---------- */
+let stars=0,streak=0;
+try{const v=Number(localStorage.getItem(&#x27;chart50-stars&#x27;));if(v&gt;0)stars=v;}catch(e){}
+function paintBars(bump){
+  document.querySelectorAll(&#x27;.star-count&#x27;).forEach(e=&gt;{e.textContent=stars;if(bump){const p=e.parentElement;p.classList.remove(&#x27;bump&#x27;);void p.offsetWidth;p.classList.add(&#x27;bump&#x27;);}});
+}
+function addStars(n){stars+=n;try{localStorage.setItem(&#x27;chart50-stars&#x27;,String(stars));}catch(e){}paintBars(true);}
+/* 정답 보상: 별 1개, 처음 고른 답으로 3번 연속 맞히면 별 2개. 칭찬 문구를 돌려줘요 */
+function reward(firstTry){
+  let add=1,msg=null;
+  if(firstTry){streak++;if(streak%3===0){add=2;msg=&#x27;🔥 3번 연속! 별 2개!&#x27;;}}else streak=0;
+  setTimeout(()=&gt;addStars(add),400);
+  return msg;
+}
+(function(){
+  const b=document.getElementById(&#x27;star-reset&#x27;);if(!b)return;let armed=false;
+  b.addEventListener(&#x27;click&#x27;,()=&gt;{
+    if(!armed){armed=true;b.textContent=&#x27;한 번 더 누르면 지워져요&#x27;;setTimeout(()=&gt;{armed=false;b.textContent=&#x27;별 지우기&#x27;;},4000);return;}
+    armed=false;stars=0;streak=0;try{localStorage.setItem(&#x27;chart50-stars&#x27;,&#x27;0&#x27;);}catch(e){}paintBars();b.textContent=&#x27;지웠어요&#x27;;
+    setTimeout(()=&gt;{b.textContent=&#x27;별 지우기&#x27;;},2000);
+  });
+  paintBars();
+})();
 &lt;/script&gt;
 
 &lt;script&gt;
